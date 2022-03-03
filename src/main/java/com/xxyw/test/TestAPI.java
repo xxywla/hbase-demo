@@ -1,14 +1,12 @@
 package com.xxyw.test;
 
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.hbase.HBaseConfiguration;
-import org.apache.hadoop.hbase.HColumnDescriptor;
-import org.apache.hadoop.hbase.HTableDescriptor;
-import org.apache.hadoop.hbase.TableName;
+import org.apache.hadoop.hbase.*;
 import org.apache.hadoop.hbase.client.Admin;
 import org.apache.hadoop.hbase.client.Connection;
 import org.apache.hadoop.hbase.client.ConnectionFactory;
 import org.apache.hadoop.hbase.client.HBaseAdmin;
+import org.apache.hadoop.hbase.protobuf.generated.HBaseProtos;
 
 import java.io.IOException;
 
@@ -88,11 +86,45 @@ public class TestAPI {
         admin.createTable(hTableDescriptor);
     }
 
-    public static void main(String[] args) throws IOException {
-        System.out.println(isTableExist("stu5"));
-        createTable("stu5", "info1", "info2");
-        System.out.println(isTableExist("stu5"));
+    // 3. 删除表
+    public static void dropTable(String tableName) throws IOException {
+        // 1. 判断表是否存在
+        if (!isTableExist(tableName)) {
+            System.out.println(tableName + "表不存在！！！");
+        }
+        // 2. 使表下线
+        admin.disableTable(TableName.valueOf(tableName));
+        //3. 删除表
+        admin.deleteTable(TableName.valueOf(tableName));
+    }
 
+    //4. 创建命名空间
+    public static void createNamespace(String ns) {
+        //1. 创建命名空间描述器
+        NamespaceDescriptor namespaceDescriptor = NamespaceDescriptor.create(ns).build();
+        //2.创建命名空间
+        try {
+            admin.createNamespace(namespaceDescriptor);
+        } catch (NamespaceExistException e) {
+            System.out.println(ns + "命名空间已存在！");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void main(String[] args) throws IOException {
+        // 1. 测试表是否存在
+//        System.out.println(isTableExist("stu5"));
+        // 2. 创建表测试
+        createTable("0408:stu5", "info1", "info2");
+        // 3. 删除表测试
+//        dropTable("stu5");
+
+        //4.创建命名空间测试
+//        createNamespace("0408");
+
+//        System.out.println(isTableExist("stu5"));
+        // 关闭资源
         close();
     }
 }
