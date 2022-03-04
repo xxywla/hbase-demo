@@ -2,11 +2,10 @@ package com.xxyw.test;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.*;
-import org.apache.hadoop.hbase.client.Admin;
-import org.apache.hadoop.hbase.client.Connection;
-import org.apache.hadoop.hbase.client.ConnectionFactory;
-import org.apache.hadoop.hbase.client.HBaseAdmin;
+import org.apache.hadoop.hbase.client.*;
 import org.apache.hadoop.hbase.protobuf.generated.HBaseProtos;
+import org.apache.hadoop.hbase.util.Bytes;
+import org.apache.hadoop.yarn.webapp.hamlet.Hamlet;
 
 import java.io.IOException;
 
@@ -44,6 +43,7 @@ public class TestAPI {
         }
     }
 
+    // 关闭资源
     public static void close() throws IOException {
         if (admin != null) {
             admin.close();
@@ -112,16 +112,126 @@ public class TestAPI {
         }
     }
 
+    // 5.向表插入数据
+    public static void putData(String tableName, String rowKey, String cf, String cn, String value) throws IOException {
+        //1. 获取表对象
+        Table table = connection.getTable(TableName.valueOf(tableName));
+
+        // 2.创建Put对象
+        Put put = new Put(Bytes.toBytes(rowKey));
+
+        //3.给Put对象赋值
+        put.addColumn(Bytes.toBytes(cf), Bytes.toBytes(cn), Bytes.toBytes(value));
+
+        // 4.插入数据
+        table.put(put);
+
+        //5.关闭表连接
+        table.close();
+    }
+
+    // 6. 获取数据 get
+    public static void getData(String tableName, String rowKey, String cf, String cn) throws IOException {
+        //1. 获取表对象
+        Table table = connection.getTable(TableName.valueOf(tableName));
+
+        // 2. 创建Get对象
+        Get get = new Get(Bytes.toBytes(rowKey));
+
+        // 2.1.指定获取的列族
+//        get.addFamily(Bytes.toBytes(cf));
+
+        //2.2 指定列族和列
+        get.addColumn(Bytes.toBytes(cf), Bytes.toBytes(cn));
+
+        //2.3 设置获取数据的版本数
+        get.setMaxVersions();
+
+        // 3. 获取数据
+        Result result = table.get(get);
+
+        //4. 解析result并打印
+        for (Cell cell : result.rawCells()) {
+            // 5. 打印数据
+            System.out.println("CF: " + Bytes.toString(CellUtil.cloneFamily(cell)) +
+                    ", CN: " + Bytes.toString(CellUtil.cloneQualifier(cell)) +
+                    ", Value: " + Bytes.toString(CellUtil.cloneValue(cell)));
+        }
+        // 5. 关闭表连接
+        table.close();
+    }
+
+    // 7. 获取数据 scan
+    public static void scanTable(String tableName) throws IOException {
+        // 1. 获取表对象
+        Table table = connection.getTable(TableName.valueOf(tableName));
+
+        // 2. 创建Scan对象
+//        Scan scan = new Scan();
+        Scan scan = new Scan(Bytes.toBytes("1001"), Bytes.toBytes("1003"));
+
+        // 3. 扫描表
+        ResultScanner resultScanner = table.getScanner(scan);
+
+        // 4. 解析resultScanner
+        for (Result result : resultScanner) {
+            // 5. 解析result并打印
+            for (Cell cell : result.rawCells()) {
+                // 6. 打印数据
+                System.out.println("rowKey: " + Bytes.toString(CellUtil.cloneRow(cell)) +
+                        ", CF: " + Bytes.toString(CellUtil.cloneFamily(cell)) +
+                        ", CN: " + Bytes.toString(CellUtil.cloneQualifier(cell)) +
+                        ", Value: " + Bytes.toString(CellUtil.cloneValue(cell)));
+            }
+        }
+        //7 关闭表连接
+        table.close();
+    }
+
+    // 8. 删除数据
+    public static void deleteData(String tableName, String rowKey, String cf, String cn) throws IOException {
+        // 1. 获取表对象
+        Table table = connection.getTable(TableName.valueOf(tableName));
+
+        // 2. 构建删除对象
+        Delete delete = new Delete(Bytes.toBytes(rowKey));
+
+        // 2.1 设置删除的列
+//        delete.addColumns(Bytes.toBytes(cf), Bytes.toBytes(cn));
+//        delete.addColumn(Bytes.toBytes(cf), Bytes.toBytes(cn));
+
+        // 2.2 删除指定的列族
+        delete.addFamily(Bytes.toBytes(cf));
+
+        // 3. 执行删除操作
+        table.delete(delete);
+
+        // 4. 关闭表连接
+        table.close();
+    }
+
     public static void main(String[] args) throws IOException {
         // 1. 测试表是否存在
 //        System.out.println(isTableExist("stu5"));
         // 2. 创建表测试
-        createTable("0408:stu5", "info1", "info2");
+//        createTable("0408:stu5", "info1", "info2");
         // 3. 删除表测试
 //        dropTable("stu5");
 
         //4.创建命名空间测试
 //        createNamespace("0408");
+
+        //5.插入数据测试
+//        putData("stu", "1006", "info2", "name", "juyoujing");
+
+        // 6.获取单行数据
+//        getData("stu", "1004", "info1", "name");
+
+        //7. 扫描数据
+//        scanTable("stu");
+
+        // 8. 删除测试
+        deleteData("stu", "1009", "info1", "name");
 
 //        System.out.println(isTableExist("stu5"));
         // 关闭资源
