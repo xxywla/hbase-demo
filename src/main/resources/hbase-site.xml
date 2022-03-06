@@ -1,0 +1,54 @@
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
+<!--
+/**
+ *
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+-->
+<configuration>
+
+    <property>
+        <name>hbase.rootdir</name>
+        <value>hdfs://slave1:9000/hbase</value>
+        <description>
+            hbase.rootdir是RegionServer的共享目录，用于持久化存储HBase数据，默认写入/tmp中。如果不修改此配置，在HBase重启时，数据会丢失。此处一般设置的是hdfs的文件目录，如NameNode运行在namenode.Example.org主机的9090端口，则需要设置为hdfs://namenode.example.org:9000/hbase
+        </description>
+    </property>
+    <property>
+        <name>hbase.cluster.distributed</name>
+        <value>true</value>
+        <description>此项用于配置HBase的部署模式，false表示单机或者伪分布式模式，true表示完全分布式模式。
+        </description>
+    </property>
+    <property>
+        <name>hbase.master.port</name>
+        <value>16000</value>
+    </property>
+    <property>
+        <name>hbase.zookeeper.quorum</name>
+        <value>master,slave1,slave2</value>
+        <description>此项用于配置ZooKeeper集群所在的主机地址。examplel、 example2、example3是运行数据节点的主机地址。
+        </description>
+    </property>
+    <property>
+        <name>hbase.zookeeper.property.dataDir</name>
+        <value>/opt/modules/zookeeper-3.6.3</value>
+        <description>此项用于设置存储ZooKeeper的元数据，如果不设置默认存在/tmp下，重启时数据会丢失。
+        </description>
+    </property>
+</configuration>

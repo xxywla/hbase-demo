@@ -30,7 +30,8 @@ public class TestAPI {
         try {
             // 1 获取配置信息
             Configuration configuration = HBaseConfiguration.create();
-            configuration.set("hbase.zookeeper.quorum", "hadoop102,hadoop103,hadoop104");
+//            configuration.set("hbase.zookeeper.quorum", "hadoop102,hadoop103,hadoop104");
+            configuration.set("hbase.zookeeper.quorum", "master,slave1,slave2");
 
             //2.创建连接对象
             connection = ConnectionFactory.createConnection(configuration);
@@ -212,7 +213,7 @@ public class TestAPI {
 
     public static void main(String[] args) throws IOException {
         // 1. 测试表是否存在
-//        System.out.println(isTableExist("stu5"));
+        System.out.println(isTableExist("fruit2"));
         // 2. 创建表测试
 //        createTable("0408:stu5", "info1", "info2");
         // 3. 删除表测试
@@ -231,7 +232,7 @@ public class TestAPI {
 //        scanTable("stu");
 
         // 8. 删除测试
-        deleteData("stu", "1009", "info1", "name");
+//        deleteData("stu", "1009", "info1", "name");
 
 //        System.out.println(isTableExist("stu5"));
         // 关闭资源
